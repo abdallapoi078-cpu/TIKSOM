@@ -1,84 +1,106 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="so">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TIKSOM</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#101010;color:white;font-family:Arial}
-header{padding:18px;display:flex;justify-content:space-between;align-items:center;background:#181818}
-.logo{font-size:27px;font-weight:bold;color:#b9d94b}
-button{border:0;border-radius:9px;padding:12px;background:#b9d94b;color:#111;font-weight:bold}
-main{padding:18px;max-width:500px;margin:auto}
-h2{text-align:center}
-.video{background:#222;border-radius:15px;margin:20px 0;padding:12px}
-video{width:100%;max-height:480px;background:#000;border-radius:10px}
-.actions{display:flex;justify-content:space-around;padding:12px}
-.actions button{background:#303030;color:white}
-nav{position:fixed;bottom:0;left:0;width:100%;background:#181818;padding:15px;display:flex;justify-content:space-around}
-nav a{color:white;text-decoration:none}
-input{display:none}
+body{margin:0;background:#000;color:white;font-family:Arial}
+header{position:fixed;top:0;left:0;width:100%;z-index:5;display:flex;justify-content:space-around;padding:18px 5px;background:#0008}
+.logo{color:#c5e85a;font-weight:bold;font-size:23px}
+.tabs{display:flex;gap:15px;font-size:14px}
+.tabs b{border-bottom:2px solid white;padding-bottom:5px}
+.feed{height:100dvh;overflow-y:auto;scroll-snap-type:y mandatory}
+.post{height:100dvh;position:relative;scroll-snap-align:start;background:#181818}
+.post video{width:100%;height:100%;object-fit:cover}
+.info{position:absolute;bottom:95px;left:15px;right:85px;text-shadow:0 1px 4px black}
+.info p{font-size:14px}
+.actions{position:absolute;right:13px;bottom:115px;display:grid;gap:23px;text-align:center}
+.actions button{background:none;color:white;border:0;font-size:27px}
+.actions small{display:block;font-size:12px}
+nav{position:fixed;bottom:0;width:100%;background:#080808;display:flex;justify-content:space-around;padding:12px 3px;z-index:8}
+nav button{background:none;color:white;border:0;font-size:12px}
+nav span{display:block;font-size:23px;margin-bottom:4px}
+.upload{position:fixed;top:70px;right:12px;z-index:9;background:#c5e85a;color:black;padding:9px;border-radius:9px;font-weight:bold}
+#file{display:none}
+.empty{height:100%;display:grid;place-items:center;text-align:center;padding:30px}
 </style>
 </head>
 <body>
 <header>
 <div class="logo">TIKSOM 🌍</div>
-<button onclick="document.getElementById('upload').click()">+ Upload</button>
-<input id="upload" type="file" accept="video/*">
+<div class="tabs"><span>Following</span><b>For You</b></div>
+<div>⌕</div>
 </header>
 
-<main>
-<h2>Welcome to TIKSOM</h2>
-<p style="text-align:center">Share your world with everyone!</p>
-<div id="feed">
-<div class="video">
-<h3>🎬 Welcome to TIKSOM</h3>
-<p>Your global video community starts here.</p>
+<label class="upload" for="file">＋ Upload</label>
+<input id="file" type="file" accept="video/*" multiple>
+
+<div class="feed" id="feed">
+<div class="post">
+<div class="empty">
+<div>
+<h1 style="color:#c5e85a">TIKSOM</h1>
+<h2>Ku soo dhawoow!</h2>
+<p>La wadaag muuqaaladaada dunida.</p>
+<p>Riix Upload si aad video u geliso.</p>
+</div>
+</div>
+<div class="info"><b>@TIKSOM</b><p>Bilowga bulshada muuqaalada caalamka ❤️</p></div>
 <div class="actions">
-<button onclick="like(this)">❤️ 0</button>
-<button onclick="comment()">💬 Comment</button>
-<button onclick="share()">↗ Share</button>
+<button onclick="like(this)">❤️<small>0</small></button>
+<button onclick="comment()">💬<small>0</small></button>
+<button onclick="share()">↗<small>Share</small></button>
 </div>
 </div>
 </div>
-</main>
 
 <nav>
-<a href="#">🏠 Home</a>
-<a href="#feed">🎬 Videos</a>
-<a href="#" onclick="document.getElementById('upload').click()">➕ Upload</a>
-<a href="#">👤 Profile</a>
+<button><span>⌂</span>Home</button>
+<button><span>♧</span>Friends</button>
+<button onclick="document.getElementById('file').click()"><span>➕</span>Upload</button>
+<button><span>✉</span>Inbox</button>
+<button><span>♙</span>Profile</button>
 </nav>
 
 <script>
 function like(btn){
-let n=Number(btn.dataset.likes||0)+1;
-btn.dataset.likes=n;
-btn.innerText="❤️ "+n;
+let n=Number(btn.dataset.n||0)+1;
+btn.dataset.n=n;
+btn.querySelector('small').textContent=n;
 }
 function comment(){
-let c=prompt("Write your comment:");
-if(c) alert("Comment: "+c);
+let c=prompt("Qor faalladaada:");
+if(c) alert("Faalladaada: "+c);
 }
 function share(){
 if(navigator.share){
-navigator.share({title:"TIKSOM",text:"Join TIKSOM!"});
+navigator.share({title:"TIKSOM",text:"Daawo TIKSOM!"});
 }else{
-alert("Welcome to TIKSOM!");
+alert("La wadaag TIKSOM asxaabtaada!");
 }
 }
-document.getElementById("upload").addEventListener("change",function(){
-let file=this.files[0];
-if(!file)return;
-let url=URL.createObjectURL(file);
-let card=document.createElement("div");
-card.className="video";
-card.innerHTML="<h3>🎬 New Video</h3><video controls></video><div class='actions'><button>❤️ Like</button><button>💬 Comment</button></div>";
-card.querySelector("video").src=url;
-feed.prepend(card);
+document.getElementById('file').addEventListener('change',function(){
+for(const f of this.files){
+const url=URL.createObjectURL(f);
+const post=document.createElement('div');
+post.className='post';
+post.innerHTML=`
+<video controls autoplay loop playsinline></video>
+<div class="info"><b>@TIKSOM User</b><p>Video cusub 🌍</p></div>
+<div class="actions">
+<button onclick="like(this)">❤️<small>0</small></button>
+<button onclick="comment()">💬<small>0</small></button>
+<button onclick="share()">↗<small>Share</small></button>
+</div>`;
+post.querySelector('video').src=url;
+document.getElementById('feed').prepend(post);
+}
+this.value='';
 });
 </script>
 </body>
 </html>
+
