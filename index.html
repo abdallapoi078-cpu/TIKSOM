@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIKSOM</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101010;color:white;font-family:Arial}
+header{padding:18px;display:flex;justify-content:space-between;align-items:center;background:#181818}
+.logo{font-size:27px;font-weight:bold;color:#b9d94b}
+button{border:0;border-radius:9px;padding:12px;background:#b9d94b;color:#111;font-weight:bold}
+main{padding:18px;max-width:500px;margin:auto}
+h2{text-align:center}
+.video{background:#222;border-radius:15px;margin:20px 0;padding:12px}
+video{width:100%;max-height:480px;background:#000;border-radius:10px}
+.actions{display:flex;justify-content:space-around;padding:12px}
+.actions button{background:#303030;color:white}
+nav{position:fixed;bottom:0;left:0;width:100%;background:#181818;padding:15px;display:flex;justify-content:space-around}
+nav a{color:white;text-decoration:none}
+input{display:none}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">TIKSOM 🌍</div>
+<button onclick="document.getElementById('upload').click()">+ Upload</button>
+<input id="upload" type="file" accept="video/*">
+</header>
+
+<main>
+<h2>Welcome to TIKSOM</h2>
+<p style="text-align:center">Share your world with everyone!</p>
+<div id="feed">
+<div class="video">
+<h3>🎬 Welcome to TIKSOM</h3>
+<p>Your global video community starts here.</p>
+<div class="actions">
+<button onclick="like(this)">❤️ 0</button>
+<button onclick="comment()">💬 Comment</button>
+<button onclick="share()">↗ Share</button>
+</div>
+</div>
+</div>
+</main>
+
+<nav>
+<a href="#">🏠 Home</a>
+<a href="#feed">🎬 Videos</a>
+<a href="#" onclick="document.getElementById('upload').click()">➕ Upload</a>
+<a href="#">👤 Profile</a>
+</nav>
+
+<script>
+function like(btn){
+let n=Number(btn.dataset.likes||0)+1;
+btn.dataset.likes=n;
+btn.innerText="❤️ "+n;
+}
+function comment(){
+let c=prompt("Write your comment:");
+if(c) alert("Comment: "+c);
+}
+function share(){
+if(navigator.share){
+navigator.share({title:"TIKSOM",text:"Join TIKSOM!"});
+}else{
+alert("Welcome to TIKSOM!");
+}
+}
+document.getElementById("upload").addEventListener("change",function(){
+let file=this.files[0];
+if(!file)return;
+let url=URL.createObjectURL(file);
+let card=document.createElement("div");
+card.className="video";
+card.innerHTML="<h3>🎬 New Video</h3><video controls></video><div class='actions'><button>❤️ Like</button><button>💬 Comment</button></div>";
+card.querySelector("video").src=url;
+feed.prepend(card);
+});
+</script>
+</body>
+</html>
