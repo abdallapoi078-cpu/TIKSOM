@@ -3,221 +3,853 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TIKSOM — Muuqaallo Gaagaaban</title>
+  <title>TIKSOM — Global Video, Viral Engine & Creator Economy</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: #000; color: #fff; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-    .app-shell { width: 100%; max-width: 450px; height: 100vh; position: relative; display: flex; flex-direction: column; background: #090b10; }
-    .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: linear-gradient(to bottom, rgba(0,0,0,0.75), transparent); }
-    .brand { font-weight: 800; font-size: 1.2rem; letter-spacing: 0.5px; color: #38bdf8; }
-    .feed { flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
-    .feed::-webkit-scrollbar { display: none; }
-    .video-card { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; display: flex; align-items: flex-end; justify-content: space-between; padding: 20px 16px 84px; background: radial-gradient(circle at top, #1e293b, #090b10 70%); }
-    .video-card video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
-    .placeholder-badge { position: relative; z-index: 2; max-width: 75%; }
-    .creator { font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
-    .caption { font-size: 0.92rem; line-height: 1.4; color: #e2e8f0; }
-    .actions { position: relative; z-index: 3; display: flex; flex-direction: column; gap: 18px; align-items: center; }
-    .action-btn { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 48px; height: 48px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; }
-    .action-btn.liked { background: #e11d48; border-color: #fb7185; }
-    .action-label { font-size: 0.72rem; margin-top: 2px; font-weight: 600; }
-    .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 64px; background: rgba(9, 11, 16, 0.95); border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; align-items: center; z-index: 20; }
-    .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.85rem; font-weight: 600; cursor: pointer; padding: 8px 14px; border-radius: 10px; }
-    .nav-btn.active { color: #38bdf8; }
-    .upload-btn { background: linear-gradient(135deg, #38bdf8, #2563eb); color: #fff; }
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; align-items: center; justify-content: center; padding: 16px; }
-    .modal.open { display: flex; }
-    .modal-box { width: 100%; max-width: 400px; background: #111827; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 20px; }
-    .modal-box h3 { margin-bottom: 12px; font-size: 1.1rem; }
-    .modal-box input, .modal-box textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: #fff; margin-bottom: 12px; }
-    .comment-list { max-height: 180px; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
-    .comment-item { background: #1e293b; padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; }
-    .row { display: flex; gap: 10px; justify-content: flex-end; }
-    .btn { padding: 9px 14px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
-    .btn-primary { background: #38bdf8; color: #090b10; }
+    body { background: #05070a; color: #f8fafc; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+    .app-shell { width: 100%; max-width: 460px; height: 100vh; position: relative; display: flex; flex-direction: column; background: #090d16; border-left: 1px solid #1e293b; border-right: 1px solid #1e293b; }
+
+    /* Top Header */
+    .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: linear-gradient(to bottom, rgba(5,7,10,0.92), transparent); gap: 6px; }
+    .brand { font-weight: 900; font-size: 1.15rem; letter-spacing: 0.6px; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .top-tabs { display: flex; gap: 9px; font-size: 0.78rem; font-weight: 700; flex-wrap: wrap; }
+    .top-tabs span { cursor: pointer; color: #94a3b8; padding-bottom: 3px; }
+    .top-tabs span.active { color: #fff; border-bottom: 2px solid #38bdf8; }
+    .wallet-pill { background: rgba(16, 185, 129, 0.18); border: 1px solid #10b981; color: #34d399; padding: 4px 9px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+    /* Screens */
+    .screen { display: none; flex: 1; overflow-y: auto; padding-bottom: 74px; }
+    .screen.active { display: block; }
+    #feedScreen { padding-bottom: 0; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+    #feedScreen::-webkit-scrollbar { display: none; }
+
+    /* Video Card */
+    .video-card { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; display: flex; align-items: flex-end; justify-content: space-between; padding: 20px 14px 82px; background: radial-gradient(circle at top, #1e293b, #05070a 75%); }
+    .video-card video, .video-card img.media-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+    .overlay-grad { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 12%, transparent 52%); z-index: 2; pointer-events: none; }
+    .post-info { position: relative; z-index: 3; max-width: 74%; }
+    .creator-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+    .creator-name { font-weight: 800; font-size: 0.96rem; cursor: pointer; color: #fff; }
+    .verified-tick { color: #38bdf8; font-size: 0.9rem; font-weight: 900; }
+    .viral-badge { background: linear-gradient(135deg, #f97316, #dc2626); color: #fff; font-size: 0.68rem; font-weight: 900; padding: 2px 7px; border-radius: 6px; letter-spacing: 0.4px; }
+    .follow-btn { background: #e11d48; color: #fff; border: none; padding: 3px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 700; cursor: pointer; }
+    .follow-btn.following { background: #334155; color: #cbd5e1; }
+    .caption { font-size: 0.87rem; line-height: 1.4; color: #e2e8f0; margin-bottom: 6px; }
+    .meta-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .earn-tag { display: inline-block; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); color: #7dd3fc; font-size: 0.7rem; padding: 2px 7px; border-radius: 6px; }
+    .loc-tag { display: inline-block; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; font-size: 0.7rem; padding: 2px 7px; border-radius: 6px; }
+
+    /* Right Action Buttons */
+    .actions { position: relative; z-index: 3; display: flex; flex-direction: column; gap: 13px; align-items: center; }
+    .act-btn { background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 45px; height: 45px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 0.98rem; }
+    .act-btn.liked { background: #e11d48; border-color: #fb7185; }
+    .act-btn.gift { background: linear-gradient(135deg, #f59e0b, #d97706); border-color: #fde68a; }
+    .act-btn.boost { background: linear-gradient(135deg, #f97316, #b91c1c); border-color: #fdba74; }
+    .act-label { font-size: 0.66rem; font-weight: 700; margin-top: 1px; }
+
+    /* Page Containers */
+    .page-pad { padding: 64px 16px 24px; }
+    .card { background: #111827; border: 1px solid #1f2937; border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    .card h3 { font-size: 1rem; margin-bottom: 8px; color: #f8fafc; }
+    .muted { color: #94a3b8; font-size: 0.84rem; line-height: 1.45; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin: 12px 0; }
+    .stat-box { background: #0f172a; padding: 10px; border-radius: 10px; border: 1px solid #1e293b; }
+    .stat-num { font-size: 1.05rem; font-weight: 800; color: #38bdf8; }
+    .stat-lbl { font-size: 0.72rem; color: #94a3b8; }
+
+    /* Forms & Buttons */
+    input, select, textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: #fff; margin-bottom: 10px; font-size: 0.9rem; }
+    .btn { padding: 9px 12px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; font-size: 0.84rem; }
+    .btn-sm { padding: 6px 10px; font-size: 0.76rem; border-radius: 8px; }
+    .btn-full { width: 100%; }
+    .btn-primary { background: linear-gradient(135deg, #38bdf8, #2563eb); color: #fff; }
+    .btn-success { background: #10b981; color: #052e16; }
+    .btn-warning { background: #f59e0b; color: #1f2937; }
+    .btn-danger { background: #e11d48; color: #fff; }
     .btn-secondary { background: #334155; color: #fff; }
+
+    /* Complaint & Badge Items */
+    .item-box { background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+    .item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 0.8rem; }
+    .reply-box { background: #172554; border-left: 3px solid #38bdf8; padding: 7px 9px; border-radius: 6px; font-size: 0.8rem; margin-top: 6px; color: #e0f2fe; }
+    .status-pill { font-size: 0.7rem; font-weight: 800; padding: 2px 7px; border-radius: 6px; }
+    .status-open { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .status-done { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+    /* Bottom Navigation */
+    .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 64px; background: rgba(9, 13, 22, 0.96); border-top: 1px solid #1e293b; display: flex; justify-content: space-around; align-items: center; z-index: 30; }
+    .nav-item { background: none; border: none; color: #94a3b8; font-size: 0.72rem; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; position: relative; }
+    .nav-item.active { color: #38bdf8; }
+    .nav-plus { background: linear-gradient(135deg, #38bdf8, #e11d48); color: #fff; padding: 8px 14px; border-radius: 12px; font-size: 0.95rem; }
+
+    /* Modals */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50; align-items: center; justify-content: center; padding: 16px; }
+    .modal.open { display: flex; }
+    .modal-box { width: 100%; max-width: 410px; background: #111827; border: 1px solid #334155; border-radius: 16px; padding: 18px; max-height: 85vh; overflow-y: auto; }
+    .gift-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+    .gift-item { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; }
+    .gift-item:hover { border-color: #f59e0b; }
+    .badge-owner { background: #f59e0b; color: #000; font-size: 0.7rem; font-weight: 800; padding: 2px 7px; border-radius: 6px; }
+    .live-box { background: #000; border: 2px solid #e11d48; border-radius: 14px; height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; margin-bottom: 12px; }
+    .live-box video { width: 100%; height: 100%; object-fit: cover; }
+    .live-pill { position: absolute; top: 10px; left: 10px; background: #e11d48; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; }
   </style>
 </head>
 <body>
   <div class="app-shell">
+    <!-- Top Bar -->
     <div class="top-bar">
       <div class="brand">TIKSOM</div>
-      <div style="font-size: 0.8rem; color: #cbd5e1;">Soo Dhawoow</div>
+      <div class="top-tabs">
+        <span class="active" onclick="filterFeed('all', this)">🌍 Dunida</span>
+        <span onclick="filterFeed('viral', this)">🔥 Viral</span>
+        <span onclick="filterFeed('local', this)">📍 Deegaanka</span>
+        <span onclick="filterFeed('following', this)">Following</span>
+      </div>
+      <div class="wallet-pill" onclick="switchScreen('walletScreen')">$<span id="topBalance">0.00</span></div>
     </div>
 
-    <div class="feed" id="feed"></div>
+    <!-- 1. FEED SCREEN -->
+    <div class="screen active" id="feedScreen"></div>
 
+    <!-- 2. LIVE SCREEN (Unlocks at 100 Followers) -->
+    <div class="screen" id="liveScreen">
+      <div class="page-pad">
+        <div class="card">
+          <h3>🔴 TIKSOM Live Studio</h3>
+          <p class="muted">Sharciga Live-ka: Qof kasta oo gaara <strong>100 Followers</strong> wuxuu si toos ah u furi karaa Live oo uu ka heli karaa hadiyado (Gifts)!</p>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-num" id="liveFollowerCount">0</div>
+              <div class="stat-lbl">Followers-kaaga</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">100</div>
+              <div class="stat-lbl">Shuruudda Live</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="liveStatusText">Xiran 🔒</div>
+              <div class="stat-lbl">Xaaladda</div>
+            </div>
+          </div>
+          <div id="liveStreamArea" style="display:none;">
+            <div class="live-box">
+              <span class="live-pill">● LIVE HADDA</span>
+              <video id="cameraPreview" autoplay muted playsinline></video>
+            </div>
+            <button class="btn btn-danger btn-full" onclick="stopLive()">Jooji Live-ka</button>
+          </div>
+          <button id="startLiveBtn" class="btn btn-primary btn-full" onclick="startLive()">Bilow Live Hadda</button>
+          <button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="simulateFollowers()">+ Ku Dar 100 Followers (Tijaabo)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. WALLET & MONETIZATION SCREEN -->
+    <div class="screen" id="walletScreen">
+      <div class="page-pad">
+        <div class="card">
+          <h3>💰 Jeebka & Dakhliga TIKSOM</h3>
+          <p class="muted">Muuqaallada <strong>🔥 VIRAL</strong> noqda waxay sameeyaan dakhli labanlaab ah! Halkan ka maamul lacagtaada:</p>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-num">$<span id="videoEarnDisplay">0.00</span></div>
+              <div class="stat-lbl">Dakhliga Video</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">$<span id="giftEarnDisplay">0.00</span></div>
+              <div class="stat-lbl">Dakhliga Gifts 🎁</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">$<span id="totalWalletDisplay">0.00</span></div>
+              <div class="stat-lbl">Wadarta Guud</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>📤 Kala Bax Lacagta (Withdraw)</h3>
+          <p class="muted" style="margin-bottom:10px;">Gali Number-kaaga (EVC Plus / Sahal / Zaad) ama Gmail-kaaga si aad lacagta ula baxdo:</p>
+          <select id="payoutMethod">
+            <option value="Mobile Number">Talefan Number (EVC Plus / Sahal / Zaad)</option>
+            <option value="Gmail">Gmail Account (PayPal / Global Payout)</option>
+          </select>
+          <input type="text" id="payoutDestination" placeholder="Gali Number-ka (tusaale: +25261...) ama Gmail-kaaga" />
+          <input type="number" id="payoutAmount" placeholder="Cadadka lacagta ($)" />
+          <button class="btn btn-success btn-full" onclick="withdrawFunds()">Dalbo Lacag-Bixin Hadda</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. DACWADAHA DADKA & CODSIGA TIKKA BULUUGGA AH -->
+    <div class="screen" id="supportScreen">
+      <div class="page-pad">
+        <div class="card">
+          <h3>📩 U Gudbi Dacwad Toos Ah Milkiilaha</h3>
+          <p class="muted" style="margin-bottom:10px;">Dacwad kasta oo aad halkan ku qorto waxay si toos ah u gaaraysaa Milkiilaha app-ka si uu uga jawaabo.</p>
+          <input type="text" id="complaintSender" placeholder="Magacaaga ama @username-kaaga" />
+          <textarea id="complaintText" rows="2" placeholder="Qor dacwadaada ama faahfaahinta..."></textarea>
+          <button class="btn btn-primary btn-full" onclick="submitComplaint()">Dir Dacwada Hadda</button>
+        </div>
+
+        <div class="card">
+          <h3>🔵 Codso Tikka Buluugga Ah (Verified Badge)</h3>
+          <p class="muted" style="margin-bottom:10px;">Codso in beejkaaga la siiyo Tikka Buluugga ah (✅) si uu Milkiiluhu kuugu ansixiyo.</p>
+          <input type="text" id="tickHandleInput" placeholder="Gali @magaca_beejkaaga (tusaale: @farxiyo_tv)" />
+          <input type="text" id="tickReasonInput" placeholder="Sababta (tusaale: Hal-abuur muuqaal, Saxafi, Ganacsi)" />
+          <button class="btn btn-warning btn-full" onclick="requestBlueTick()">Codso Tikka Buluugga Ah</button>
+        </div>
+
+        <div class="card">
+          <h3>📥 Sanduuqa Dacwadaha Ee Milkiilaha (<span id="openComplaintsCount">0</span> Cusub)</h3>
+          <div id="complaintsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. PROFILE, LOCATION REACH & OWNER ADMIN SCREEN -->
+    <div class="screen" id="profileScreen">
+      <div class="page-pad">
+        <!-- Auth Box -->
+        <div class="card" id="authCard">
+          <h3>👤 Samayso Beej U Gaar Ah</h3>
+          <p class="muted" style="margin-bottom:10px;">Ku samayso akoon iyo Beej kuu gaar ah adigoo adeegsanaya <strong>Number-kaaga</strong> ama <strong>Gmail-kaaga</strong>, kana dooro dalka/deegaanka aad joogto:</p>
+          <input type="text" id="regName" placeholder="Magaca Beejkaaga (tusaale: @abdalla_official)" />
+          <input type="text" id="regContact" placeholder="Gali Number-kaaga ama Gmail-kaaga" />
+          <select id="regLocation">
+            <option value="Somalia 🌍">Somalia (Soomaaliya)</option>
+            <option value="Kenya 🌍">Kenya</option>
+            <option value="USA 🌍">USA (Maraykanka)</option>
+            <option value="UK 🌍">UK (Ingiriiska)</option>
+            <option value="UAE 🌍">UAE (Imaaraadka)</option>
+            <option value="Turkey 🌍">Turkey (Turkiga)</option>
+            <option value="Global 🌍">Global (Dunida Oo Dhan)</option>
+          </select>
+          <textarea id="regBio" rows="2" placeholder="Faahfaahin kooban oo ku saabsan Beejkaaga..."></textarea>
+          <button class="btn btn-primary btn-full" onclick="saveAccount()">Samee Beejkayga</button>
+        </div>
+
+        <!-- User Page Card -->
+        <div class="card" id="userPageCard" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap;">
+            <h3 id="profileHandle">@isticmaale <span id="profileTick" class="verified-tick" style="display:none;">✅</span></h3>
+            <span id="ownerBadge" class="badge-owner" style="display:none;">👑 MILKIILAHA APP-KA</span>
+          </div>
+          <p class="muted" id="profileContact"></p>
+          <p class="muted" id="profileLocationText" style="color:#6ee7b7; margin-top:2px;"></p>
+          <p style="font-size:0.88rem; margin:8px 0;" id="profileBio"></p>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-num" id="profFollowing">0</div>
+              <div class="stat-lbl">Following</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="profFollowers">0</div>
+              <div class="stat-lbl">Followers</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="profPosts">0</div>
+              <div class="stat-lbl">Muuqaallo</div>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-full" onclick="editAccount()">Wax Ka Beddel Beejka & Deegaanka</button>
+        </div>
+
+        <!-- Owner Blue Tick Control -->
+        <div class="card">
+          <h3>✅ Bixinta & Ansixinta Tikka Buluugga Ah (Milkiile)</h3>
+          <input type="text" id="grantTickHandle" placeholder="Gali @username si aad u siiso Tikka Buluugga ah" />
+          <button class="btn btn-primary btn-full" style="margin-bottom:10px;" onclick="grantBlueTickDirect()">Bixi Tikka Buluugga Ah Hadda</button>
+          <div id="tickRequestsList"></div>
+        </div>
+
+        <!-- Owner Admin Stats -->
+        <div class="card">
+          <h3>👑 Maamulka Milkiilaha App-ka</h3>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-num" id="adminTotalPosts">0</div>
+              <div class="stat-lbl">Wadarta Posts</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="adminTotalViews">0</div>
+              <div class="stat-lbl">Wadarta Views</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">$<span id="adminCommission">0.00</span></div>
+              <div class="stat-lbl">Dakhliga Milkiilaha</div>
+            </div>
+          </div>
+          <div id="adminActivityLog" class="muted" style="font-size:0.8rem; max-height:120px; overflow-y:auto; background:#0f172a; padding:10px; border-radius:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-      <button class="nav-btn active" onclick="switchTab('feed', this)">Muuqaallo</button>
-      <button class="nav-btn upload-btn" onclick="openUploadModal()">+ Soo Geli</button>
-      <button class="nav-btn" onclick="switchTab('profile', this)">Profile</button>
+      <button class="nav-item active" onclick="switchScreen('feedScreen', this)">🏠<span>Home</span></button>
+      <button class="nav-item" onclick="switchScreen('liveScreen', this)">🔴<span>Live</span></button>
+      <button class="nav-item" onclick="openModal('uploadModal')"><span class="nav-plus">+</span></button>
+      <button class="nav-item" onclick="switchScreen('supportScreen', this)">📩<span>Dacwad</span></button>
+      <button class="nav-item" onclick="switchScreen('profileScreen', this)">👤<span>Beejkayga</span></button>
     </nav>
   </div>
 
-  <!-- Comment Modal -->
-  <div class="modal" id="commentModal">
+  <!-- Upload Modal (Includes Global & Location Targeting) -->
+  <div class="modal" id="uploadModal">
     <div class="modal-box">
-      <h3>Faallooyinka</h3>
-      <div class="comment-list" id="commentList"></div>
-      <input type="text" id="commentInput" placeholder="Qor faallo..." />
-      <div class="row">
-        <button class="btn btn-secondary" onclick="closeModal('commentModal')">Xir</button>
-        <button class="btn btn-primary" onclick="addComment()">Dir</button>
+      <h3>🎬 Soo Geli Muuqaal ama Sawir Cusub</h3>
+      <p class="muted" style="margin-bottom:10px;">Dooro meesha la gaarsiinayo muuqaalkaaga si uu u noqdo <strong>🔥 VIRAL</strong> una gaaro qof kasta!</p>
+      <input type="file" id="mediaFile" accept="video/*,image/*" />
+      <select id="postTargetRegion">
+        <option value="Global 🌍">🌍 Dunida Oo Dhan (Global Reach)</option>
+        <option value="Somalia 🌍">📍 Somalia (Soomaaliya)</option>
+        <option value="Kenya 🌍">📍 Kenya</option>
+        <option value="USA 🌍">📍 USA (Maraykanka)</option>
+        <option value="UK 🌍">📍 UK (Ingiriiska)</option>
+        <option value="UAE 🌍">📍 UAE (Imaaraadka)</option>
+      </select>
+      <textarea id="postCaption" rows="2" placeholder="Qor cinwaan soo jiidasho leh... #TIKSOM #Viral"></textarea>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-full" onclick="closeModal('uploadModal')">Jooji</button>
+        <button class="btn btn-primary btn-full" onclick="publishPost()">Daabac & Gaarsii</button>
       </div>
     </div>
   </div>
 
-  <!-- Upload Modal -->
-  <div class="modal" id="uploadModal">
+  <!-- Gift Modal -->
+  <div class="modal" id="giftModal">
     <div class="modal-box">
-      <h3>Soo Geli Muuqaal Cusub</h3>
-      <input type="file" id="videoFileInput" accept="video/*" />
-      <input type="text" id="creatorInput" placeholder="Magacaaga (tusaale: @abdalla)" />
-      <textarea id="captionInput" rows="2" placeholder="Qoraal kooban oo ku saabsan muuqaalka..."></textarea>
-      <div class="row">
-        <button class="btn btn-secondary" onclick="closeModal('uploadModal')">Jooji</button>
-        <button class="btn btn-primary" onclick="publishVideo()">Daabac</button>
+      <h3>🎁 U Dir Hadiyad (Gift)</h3>
+      <p class="muted">Dooro hadiyad aad u dirto <strong id="giftReceiverName"></strong>:</p>
+      <div class="gift-grid">
+        <div class="gift-item" onclick="sendGift('Ubax 🌹', 1)">🌹<br><strong>$1</strong></div>
+        <div class="gift-item" onclick="sendGift('Taaj 👑', 5)">👑<br><strong>$5</strong></div>
+        <div class="gift-item" onclick="sendGift('Libaax 🦁', 20)">🦁<br><strong>$20</strong></div>
+      </div>
+      <button class="btn btn-secondary btn-full" onclick="closeModal('giftModal')">Xir</button>
+    </div>
+  </div>
+
+  <!-- Comments Modal -->
+  <div class="modal" id="commentModal">
+    <div class="modal-box">
+      <h3>💬 Faallooyinka</h3>
+      <div id="commentsList" style="max-height:180px; overflow-y:auto; margin:10px 0; display:flex; flex-direction:column; gap:6px;"></div>
+      <input type="text" id="newCommentInput" placeholder="Qor faalladaada..." />
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-full" onclick="closeModal('commentModal')">Xir</button>
+        <button class="btn btn-primary btn-full" onclick="submitComment()">Dir</button>
       </div>
     </div>
   </div>
 
   <script>
-    let videos = [
-      {
-        id: 1,
-        creator: "@tiksom_rasmi",
-        caption: "Ku soo dhawaada TIKSOM — Madasha muuqaallada gaagaaban! #TIKSOM #Somalia",
-        likes: 24,
-        liked: false,
-        comments: ["Mashruuc cajiib ah!", "Waannu sugaynay app-kan."],
-        src: null
+    let state = JSON.parse(localStorage.getItem("tiksom_pro_v3")) || {
+      user: {
+        loggedIn: true,
+        handle: "@abdallapoi078-cpu",
+        contact: "abdallapoi078@gmail.com",
+        location: "Somalia 🌍",
+        bio: "Aasaasaha iyo Milkiilaha TIKSOM 🌍",
+        isOwner: true,
+        followers: 45,
+        following: ["@tiksom_rasmi"],
+        videoEarnings: 12.50,
+        giftEarnings: 8.00
       },
-      {
-        id: 2,
-        creator: "@abdalla_dev",
-        caption: "Waxaan ka dhisaynaa GitHub annagoo adeegsanayna talefanka! #Coding",
-        likes: 15,
-        liked: false,
-        comments: ["Guul ayaan idiin rajaynayaa."],
-        src: null
-      }
-    ];
+      verifiedUsers: ["@abdallapoi078-cpu", "@tiksom_rasmi"],
+      tickRequests: [
+        { id: 101, handle: "@somal_creator", reason: "Hal-abuur muuqaal maalinle ah", status: "pending" }
+      ],
+      complaints: [
+        {
+          id: 201,
+          sender: "@maxamed_ali",
+          text: "Codsi ku saabsan sida loo helo 100 followers iyo bixinta lacagta.",
+          reply: "Waad mahadsan tahay! Markaad gaarto 100 followers Live-ka ayaa kuu furmaya.",
+          resolved: true
+        }
+      ],
+      ownerCommission: 4.20,
+      logs: [
+        "Akoonka Milkiilaha @abdallapoi078-cpu waa diyaar.",
+        "Nidaamka Fayral-noqoshada (Viral Engine) iyo Gaarsiinta Dunida waa la shiday."
+      ],
+      posts: [
+        {
+          id: 1,
+          type: "image",
+          src: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=900",
+          creator: "@tiksom_rasmi",
+          region: "Global 🌍",
+          caption: "Ku soo dhawaada TIKSOM! Muuqaal kasta wuu qarxi karaa oo fayral (🔥 VIRAL) ayuu noqon karaa dunida oo dhan! 🌍💰",
+          likes: 320,
+          views: 15400,
+          viralScore: 95,
+          isViral: true,
+          giftsTotal: 15,
+          liked: false,
+          comments: ["App cajiib ah!", "Muuqaalkani wuu qarxay 🔥"]
+        },
+        {
+          id: 2,
+          type: "image",
+          src: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900",
+          creator: "@abdallapoi078-cpu",
+          region: "Somalia 🌍",
+          caption: "Milkiilaha TIKSOM — Gaarsiinta qof kasta iyo meel kasta oo dunida ah!",
+          likes: 110,
+          views: 2400,
+          viralScore: 60,
+          isViral: false,
+          giftsTotal: 8,
+          liked: false,
+          comments: ["Waan ku taageersannahay milkiile!"]
+        }
+      ]
+    };
 
-    let activeVideoId = null;
+    let currentFilter = "all";
+    let activePostId = null;
+    let liveStreamObj = null;
+
+    function normalizeHandle(h) {
+      const clean = h.trim();
+      if (!clean) return "";
+      return clean.startsWith("@") ? clean : "@" + clean;
+    }
+
+    function isVerified(handle) {
+      return state.verifiedUsers.includes(handle);
+    }
+
+    // Viral Algorithm Calculation
+    function evaluateViralStatus(post) {
+      const score = (post.likes * 2) + (post.comments.length * 5) + (post.giftsTotal * 10) + Math.floor(post.views / 50);
+      post.viralScore = score;
+      if (!post.isViral && score >= 100) {
+        post.isViral = true;
+        post.views += 5000; // Viral explosion reach boost
+        post.region = "Global 🌍"; // Auto-promoted worldwide when viral
+        state.logs.unshift(`🔥 QARXAY (VIRAL): Muuqaalka ${post.creator} wuxuu gaaray dunida oo dhan!`);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem("tiksom_pro_v3", JSON.stringify(state));
+      updateUI();
+    }
+
+    function updateUI() {
+      const total = (state.user.videoEarnings + state.user.giftEarnings).toFixed(2);
+      document.getElementById("topBalance").innerText = total;
+      document.getElementById("videoEarnDisplay").innerText = state.user.videoEarnings.toFixed(2);
+      document.getElementById("giftEarnDisplay").innerText = state.user.giftEarnings.toFixed(2);
+      document.getElementById("totalWalletDisplay").innerText = total;
+
+      const openComplaints = state.complaints.filter(c => !c.resolved).length;
+      document.getElementById("openComplaintsCount").innerText = openComplaints;
+
+      document.getElementById("liveFollowerCount").innerText = state.user.followers;
+      document.getElementById("liveStatusText").innerText = state.user.followers >= 100 ? "Furan ✅" : "Xiran 🔒";
+
+      if (state.user.loggedIn) {
+        document.getElementById("authCard").style.display = "none";
+        document.getElementById("userPageCard").style.display = "block";
+        document.getElementById("profileHandle").childNodes[0].nodeValue = state.user.handle + " ";
+        document.getElementById("profileTick").style.display = isVerified(state.user.handle) ? "inline" : "none";
+        document.getElementById("profileContact").innerText = "Xiriirka: " + state.user.contact;
+        document.getElementById("profileLocationText").innerText = "📍 Deegaankaaga: " + (state.user.location || "Global 🌍");
+        document.getElementById("profileBio").innerText = state.user.bio;
+        document.getElementById("ownerBadge").style.display = state.user.isOwner ? "inline-block" : "none";
+        document.getElementById("profFollowing").innerText = state.user.following.length;
+        document.getElementById("profFollowers").innerText = state.user.followers;
+        document.getElementById("profPosts").innerText = state.posts.filter(p => p.creator === state.user.handle).length;
+      } else {
+        document.getElementById("authCard").style.display = "block";
+        document.getElementById("userPageCard").style.display = "none";
+      }
+
+      renderComplaints();
+      renderTickRequests();
+
+      document.getElementById("adminTotalPosts").innerText = state.posts.length;
+      document.getElementById("adminTotalViews").innerText = state.posts.reduce((acc, p) => acc + p.views, 0).toLocaleString();
+      document.getElementById("adminCommission").innerText = state.ownerCommission.toFixed(2);
+      document.getElementById("adminActivityLog").innerHTML = state.logs.map(l => `<div>• ${l}</div>`).join("");
+
+      renderFeed();
+    }
 
     function renderFeed() {
-      const feed = document.getElementById("feed");
+      const feed = document.getElementById("feedScreen");
       feed.innerHTML = "";
 
-      videos.forEach((vid) => {
+      let list = [...state.posts];
+      if (currentFilter === "following") {
+        list = list.filter(p => state.user.following.includes(p.creator));
+      } else if (currentFilter === "viral") {
+        list = list.filter(p => p.isViral).sort((a, b) => b.views - a.views);
+      } else if (currentFilter === "local") {
+        const myLoc = state.user.location || "Somalia 🌍";
+        list = list.filter(p => p.region === myLoc || p.region === "Global 🌍");
+      } else {
+        // Global feed prioritizes Viral posts first
+        list.sort((a, b) => (b.isViral === a.isViral ? b.views - a.views : b.isViral - a.isViral));
+      }
+
+      if (list.length === 0) {
+        feed.innerHTML = `<div class="page-pad"><div class="card"><h3>Muuqaallo lama helin qaybtan</h3><p class="muted">Soo dhig muuqaal cusub ama u wareeg qaybta <strong>🌍 Dunida</strong>.</p></div></div>`;
+        return;
+      }
+
+      list.forEach(post => {
+        const isFollowing = state.user.following.includes(post.creator);
+        const tickHtml = isVerified(post.creator) ? `<span class="verified-tick" title="Verified">✅</span>` : "";
+        const viralHtml = post.isViral ? `<span class="viral-badge">🔥 VIRAL</span>` : "";
         const card = document.createElement("div");
         card.className = "video-card";
 
-        if (vid.src) {
-          card.innerHTML += `<video src="${vid.src}" controls autoplay loop playsinline></video>`;
-        }
+        const mediaHtml = post.type === "video"
+          ? `<video src="${post.src}" autoplay loop muted playsinline></video>`
+          : `<img class="media-bg" src="${post.src}" alt="TIKSOM Post" />`;
 
-        card.innerHTML += `
-          <div class="placeholder-badge">
-            <div class="creator">${vid.creator}</div>
-            <div class="caption">${vid.caption}</div>
+        card.innerHTML = `
+          ${mediaHtml}
+          <div class="overlay-grad"></div>
+          <div class="post-info">
+            <div class="creator-row">
+              <span class="creator-name" onclick="viewCreator('${post.creator}')">${post.creator}</span>
+              ${tickHtml}
+              ${viralHtml}
+              ${post.creator !== state.user.handle ? `<button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${post.creator}')">${isFollowing ? 'Following' : '+ Follow'}</button>` : ''}
+            </div>
+            <div class="caption">${post.caption}</div>
+            <div class="meta-tags">
+              <span class="loc-tag">📍 ${post.region || "Global 🌍"}</span>
+              <span class="earn-tag">👁️ ${post.views.toLocaleString()} Views • 🎁 $${post.giftsTotal}</span>
+            </div>
           </div>
           <div class="actions">
-            <button class="action-btn ${vid.liked ? "liked" : ""}" onclick="toggleLike(${vid.id})">
-              ♥
-              <span class="action-label">${vid.likes}</span>
-            </button>
-            <button class="action-btn" onclick="openComments(${vid.id})">
-              💬
-              <span class="action-label">${vid.comments.length}</span>
-            </button>
-            <button class="action-btn" onclick="shareVideo('${vid.creator}')">
-              ↗
-              <span class="action-label">Share</span>
-            </button>
+            <button class="act-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">♥<span class="act-label">${post.likes}</span></button>
+            <button class="act-btn" onclick="openComments(${post.id})">💬<span class="act-label">${post.comments.length}</span></button>
+            <button class="act-btn boost" onclick="boostToViral(${post.id})" title="Qarxi Muuqaalka (Go Viral)">🔥<span class="act-label">Viral</span></button>
+            <button class="act-btn gift" onclick="openGiftModal(${post.id})">🎁<span class="act-label">Gift</span></button>
           </div>
         `;
         feed.appendChild(card);
       });
     }
 
-    function toggleLike(id) {
-      const vid = videos.find((v) => v.id === id);
-      if (!vid) return;
-      vid.liked = !vid.liked;
-      vid.likes += vid.liked ? 1 : -1;
+    // Boost / Trigger Viral Explosion
+    function boostToViral(id) {
+      const post = state.posts.find(p => p.id === id);
+      if (!post) return;
+      post.likes += 50;
+      post.views += 6500;
+      post.isViral = true;
+      post.region = "Global 🌍";
+      state.user.videoEarnings += 1.25;
+      state.logs.unshift(`🔥 QARXAY: Muuqaalka ${post.creator} wuxuu gaaray ${post.views.toLocaleString()} daawasho dunida oo dhan!`);
+      alert(`🔥 HAMBALYO! Muuqaalku wuu QARXAY (VIRAL)!\nHadda wuxuu u muuqanayaa dadka dunida oo dhan (Global 🌍), daawashaduna waxay gaartay ${post.views.toLocaleString()}!`);
+      saveState();
+    }
+
+    // DACWADAHA
+    function submitComplaint() {
+      const sender = normalizeHandle(document.getElementById("complaintSender").value) || state.user.handle;
+      const text = document.getElementById("complaintText").value.trim();
+      if (!text) {
+        alert("Fadlan qor dacwadaada ka hor intaadan dirin!");
+        return;
+      }
+      state.complaints.unshift({ id: Date.now(), sender, text, reply: "", resolved: false });
+      state.logs.unshift(`📩 Dacwad cusub oo ka timid ${sender}`);
+      document.getElementById("complaintText").value = "";
+      alert("Dacwadaada si toos ah ayay u gaartay Milkiilaha TIKSOM!");
+      saveState();
+    }
+
+    function replyToComplaint(id) {
+      const input = document.getElementById("replyInput_" + id);
+      const replyText = input.value.trim();
+      if (!replyText) return alert("Fadlan qor jawaabta!");
+      const c = state.complaints.find(item => item.id === id);
+      if (!c) return;
+      c.reply = replyText;
+      c.resolved = true;
+      state.logs.unshift(`✉️ Milkiilaha ayaa u jawaabay dacwaddii ${c.sender}`);
+      saveState();
+    }
+
+    function renderComplaints() {
+      const wrap = document.getElementById("complaintsList");
+      if (!state.complaints.length) {
+        wrap.innerHTML = `<p class="muted">Weli dacwad lama soo gudbin.</p>`;
+        return;
+      }
+      wrap.innerHTML = state.complaints.map(c => `
+        <div class="item-box">
+          <div class="item-top">
+            <strong>${c.sender}</strong>
+            <span class="status-pill ${c.resolved ? 'status-done' : 'status-open'}">${c.resolved ? 'La Jawaabay ✅' : 'Cusub'}</span>
+          </div>
+          <p style="font-size:0.85rem; margin-bottom:6px;">${c.text}</p>
+          ${c.reply ? `<div class="reply-box"><strong>Jawaabta Milkiilaha:</strong> ${c.reply}</div>` : ""}
+          <div style="margin-top:8px; display:flex; gap:6px;">
+            <input type="text" id="replyInput_${c.id}" placeholder="Qor jawaabtaada..." style="margin-bottom:0;" value="${c.reply || ""}" />
+            <button class="btn btn-success btn-sm" onclick="replyToComplaint(${c.id})">Jawaab</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // TIKKA BULUUGGA AH
+    function requestBlueTick() {
+      const handle = normalizeHandle(document.getElementById("tickHandleInput").value);
+      const reason = document.getElementById("tickReasonInput").value.trim() || "Codsi Tikka Buluugga ah";
+      if (!handle) return alert("Fadlan gali @magaca_beejkaaga!");
+      if (isVerified(handle)) return alert(`${handle} horay ayuu u haystaa Tikka Buluugga ah ✅!`);
+      state.tickRequests.unshift({ id: Date.now(), handle, reason, status: "pending" });
+      state.logs.unshift(`🔵 ${handle} wuxuu codsaday Tikka Buluugga ah`);
+      document.getElementById("tickHandleInput").value = "";
+      document.getElementById("tickReasonInput").value = "";
+      alert(`Codsigaaga Tikka Buluugga ah ee ${handle} wuu gaaray Milkiilaha!`);
+      saveState();
+    }
+
+    function grantBlueTickDirect() {
+      const handle = normalizeHandle(document.getElementById("grantTickHandle").value);
+      if (!handle) return alert("Fadlan gali @username!");
+      if (!state.verifiedUsers.includes(handle)) state.verifiedUsers.push(handle);
+      state.tickRequests.forEach(r => { if (r.handle === handle) r.status = "approved"; });
+      state.logs.unshift(`✅ Milkiiluhu wuxuu siiyay Tikka Buluugga ah: ${handle}`);
+      document.getElementById("grantTickHandle").value = "";
+      alert(`Waxaad siisay Tikka Buluugga ah (✅) akoonka ${handle}!`);
+      saveState();
+    }
+
+    function approveTickRequest(id) {
+      const req = state.tickRequests.find(r => r.id === id);
+      if (!req) return;
+      if (!state.verifiedUsers.includes(req.handle)) state.verifiedUsers.push(req.handle);
+      req.status = "approved";
+      state.logs.unshift(`✅ Codsigii Tikka Buluugga ah ee ${req.handle} waa la ansixiyay`);
+      saveState();
+    }
+
+    function renderTickRequests() {
+      const box = document.getElementById("tickRequestsList");
+      const pending = state.tickRequests.filter(r => r.status === "pending");
+      if (!pending.length) {
+        box.innerHTML = `<p class="muted">Ma jiraan codsiyo Tikka Buluugga ah oo sugaya ansixin.</p>`;
+        return;
+      }
+      box.innerHTML = pending.map(r => `
+        <div class="item-box">
+          <div class="item-top">
+            <strong>${r.handle}</strong>
+            <button class="btn btn-success btn-sm" onclick="approveTickRequest(${r.id})">Bixi Tick ✅</button>
+          </div>
+          <p class="muted">${r.reason}</p>
+        </div>
+      `).join("");
+    }
+
+    // Core Controls
+    function filterFeed(type, el) {
+      currentFilter = type;
+      document.querySelectorAll(".top-tabs span").forEach(s => s.classList.remove("active"));
+      if (el) el.classList.add("active");
+      switchScreen("feedScreen");
       renderFeed();
+    }
+
+    function switchScreen(screenId, navEl) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(screenId).classList.add("active");
+      if (navEl) {
+        document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+        navEl.classList.add("active");
+      }
+    }
+
+    function toggleLike(id) {
+      const post = state.posts.find(p => p.id === id);
+      if (!post) return;
+      post.liked = !post.liked;
+      post.likes += post.liked ? 1 : -1;
+      post.views += post.isViral ? 25 : 5;
+      if (post.liked) state.user.videoEarnings += post.isViral ? 0.15 : 0.05;
+      evaluateViralStatus(post);
+      saveState();
+    }
+
+    function toggleFollow(creator) {
+      const idx = state.user.following.indexOf(creator);
+      if (idx === -1) {
+        state.user.following.push(creator);
+        state.logs.unshift(`${state.user.handle} wuxuu raacay ${creator}`);
+      } else {
+        state.user.following.splice(idx, 1);
+      }
+      saveState();
+    }
+
+    function viewCreator(creator) {
+      alert("Beejka: " + creator + (isVerified(creator) ? " (Verified ✅)" : ""));
+    }
+
+    function publishPost() {
+      const fileInput = document.getElementById("mediaFile");
+      const region = document.getElementById("postTargetRegion").value;
+      const caption = document.getElementById("postCaption").value.trim() || "Muuqaal cusub oo TIKSOM ah 🌍 #TIKSOM #Viral";
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return alert("Fadlan dooro muuqaal ama sawir aad soo geliso!");
+
+      const isVideo = file.type.startsWith("video/");
+      const url = URL.createObjectURL(file);
+      const autoViral = Math.random() > 0.45; // High chance to go viral automatically
+
+      state.posts.unshift({
+        id: Date.now(),
+        type: isVideo ? "video" : "image",
+        src: url,
+        creator: state.user.handle,
+        region: autoViral ? "Global 🌍" : region,
+        caption,
+        likes: autoViral ? 85 : 5,
+        views: autoViral ? 4200 : 120,
+        viralScore: autoViral ? 120 : 20,
+        isViral: autoViral,
+        giftsTotal: 0,
+        liked: false,
+        comments: []
+      });
+
+      state.user.videoEarnings += autoViral ? 1.50 : 0.50;
+      state.logs.unshift(autoViral
+        ? `🔥 QARXAY: Muuqaalka ${state.user.handle} isla markiiba fayral ayuu noqday!`
+        : `Post cusub oo uu soo dhigay ${state.user.handle} (${region})`);
+
+      fileInput.value = "";
+      document.getElementById("postCaption").value = "";
+      closeModal("uploadModal");
+      saveState();
+    }
+
+    function openGiftModal(postId) {
+      activePostId = postId;
+      const post = state.posts.find(p => p.id === postId);
+      document.getElementById("giftReceiverName").innerText = post.creator;
+      openModal("giftModal");
+    }
+
+    function sendGift(giftName, amount) {
+      const post = state.posts.find(p => p.id === activePostId);
+      if (!post) return;
+      post.giftsTotal += amount;
+      state.user.giftEarnings += amount * 0.80;
+      state.ownerCommission += amount * 0.20;
+      evaluateViralStatus(post);
+      state.logs.unshift(`🎁 ${giftName} ($${amount}) ayaa loo diray ${post.creator}`);
+      closeModal("giftModal");
+      alert(`Waad dirtay ${giftName} ($${amount})!`);
+      saveState();
+    }
+
+    function withdrawFunds() {
+      const method = document.getElementById("payoutMethod").value;
+      const dest = document.getElementById("payoutDestination").value.trim();
+      const amount = parseFloat(document.getElementById("payoutAmount").value);
+      const totalAvailable = state.user.videoEarnings + state.user.giftEarnings;
+      if (!dest || isNaN(amount) || amount <= 0) return alert("Fadlan gali Number-kaaga ama Gmail-kaaga iyo cadadka saxda ah!");
+      if (amount > totalAvailable) return alert("Haraagaaga kuma filna! Haraagaagu waa $" + totalAvailable.toFixed(2));
+      let remaining = amount;
+      if (state.user.giftEarnings >= remaining) {
+        state.user.giftEarnings -= remaining;
+      } else {
+        remaining -= state.user.giftEarnings;
+        state.user.giftEarnings = 0;
+        state.user.videoEarnings -= remaining;
+      }
+      state.logs.unshift(`💸 Lacag-bixin $${amount.toFixed(2)} loo diray ${dest} (${method})`);
+      document.getElementById("payoutAmount").value = "";
+      alert(`Codsigaaga waa la aqbalay! $${amount.toFixed(2)} waxaa laguugu soo dirayaa ${dest}.`);
+      saveState();
+    }
+
+    function simulateFollowers() {
+      state.user.followers += 100;
+      state.logs.unshift(`${state.user.handle} wuxuu gaaray ${state.user.followers} followers`);
+      saveState();
+    }
+
+    async function startLive() {
+      if (state.user.followers < 100) return alert(`Wali ma gaarin 100 Followers! Hadda waxaad leedahay ${state.user.followers}.`);
+      document.getElementById("liveStreamArea").style.display = "block";
+      document.getElementById("startLiveBtn").style.display = "none";
+      state.logs.unshift(`🔴 ${state.user.handle} ayaa Live soo galay!`);
+      saveState();
+      try {
+        liveStreamObj = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById("cameraPreview").srcObject = liveStreamObj;
+      } catch (err) {}
+    }
+
+    function stopLive() {
+      if (liveStreamObj) liveStreamObj.getTracks().forEach(t => t.stop());
+      document.getElementById("liveStreamArea").style.display = "none";
+      document.getElementById("startLiveBtn").style.display = "block";
+    }
+
+    function saveAccount() {
+      const name = normalizeHandle(document.getElementById("regName").value);
+      const contact = document.getElementById("regContact").value.trim();
+      const loc = document.getElementById("regLocation").value;
+      const bio = document.getElementById("regBio").value.trim();
+      if (!name || !contact) return alert("Fadlan gali magaca beejka iyo Number-kaaga ama Gmail-kaaga!");
+      state.user.handle = name;
+      state.user.contact = contact;
+      state.user.location = loc;
+      state.user.bio = bio || "Beej rasmi ah oo ku yaalla TIKSOM";
+      state.user.loggedIn = true;
+      state.logs.unshift(`Beej cusub ayaa la sameeyay: ${state.user.handle} (${loc})`);
+      saveState();
+    }
+
+    function editAccount() {
+      state.user.loggedIn = false;
+      saveState();
     }
 
     function openComments(id) {
-      activeVideoId = id;
-      const vid = videos.find((v) => v.id === id);
-      const list = document.getElementById("commentList");
-      list.innerHTML = vid.comments.length
-        ? vid.comments.map((c) => `<div class="comment-item">${c}</div>`).join("")
-        : `<div class="comment-item">Weli faallo ma jirto. Noqo qofka ugu horreeya!</div>`;
-      document.getElementById("commentModal").classList.add("open");
+      activePostId = id;
+      const post = state.posts.find(p => p.id === id);
+      const list = document.getElementById("commentsList");
+      list.innerHTML = post.comments.length
+        ? post.comments.map(c => `<div style="background:#1e293b;padding:8px;border-radius:8px;font-size:0.84rem;">${c}</div>`).join("")
+        : `<div class="muted">Weli faallo ma jirto.</div>`;
+      openModal("commentModal");
     }
 
-    function addComment() {
-      const input = document.getElementById("commentInput");
-      const text = input.value.trim();
-      if (!text || activeVideoId === null) return;
-      const vid = videos.find((v) => v.id === activeVideoId);
-      vid.comments.push(text);
+    function submitComment() {
+      const input = document.getElementById("newCommentInput");
+      const txt = input.value.trim();
+      if (!txt) return;
+      const post = state.posts.find(p => p.id === activePostId);
+      post.comments.push(`${state.user.handle}: ${txt}`);
       input.value = "";
-      openComments(activeVideoId);
-      renderFeed();
+      evaluateViralStatus(post);
+      openComments(activePostId);
+      saveState();
     }
 
-    function shareVideo(creator) {
-      alert("Link-ga muuqaalka ee " + creator + " waa la diyaariyay!");
-    }
+    function openModal(id) { document.getElementById(id).classList.add("open"); }
+    function closeModal(id) { document.getElementById(id).classList.remove("open"); }
 
-    function openUploadModal() {
-      document.getElementById("uploadModal").classList.add("open");
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.remove("open");
-    }
-
-    function publishVideo() {
-      const fileInput = document.getElementById("videoFileInput");
-      const creator = document.getElementById("creatorInput").value.trim() || "@isticmaale_cusub";
-      const caption = document.getElementById("captionInput").value.trim() || "Muuqaal cusub oo TIKSOM ah";
-
-      let videoUrl = null;
-      if (fileInput.files && fileInput.files[0]) {
-        videoUrl = URL.createObjectURL(fileInput.files[0]);
-      }
-
-      videos.unshift({
-        id: Date.now(),
-        creator,
-        caption,
-        likes: 0,
-        liked: false,
-        comments: [],
-        src: videoUrl
-      });
-
-      document.getElementById("creatorInput").value = "";
-      document.getElementById("captionInput").value = "";
-      fileInput.value = "";
-      closeModal("uploadModal");
-      renderFeed();
-    }
-
-    function switchTab(tab, el) {
-      document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
-      if (el) el.classList.add("active");
-      if (tab === "profile") {
-        alert("Profile-ka TIKSOM: @abdallapoi078-cpu — Wadarta muuqaallada: " + videos.length);
-      }
-    }
-
-    renderFeed();
+    updateUI();
   </script>
 </body>
 </html>
