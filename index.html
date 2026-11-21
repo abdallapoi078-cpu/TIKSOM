@@ -1,106 +1,224 @@
-
 <!DOCTYPE html>
 <html lang="so">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TIKSOM</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#000;color:white;font-family:Arial}
-header{position:fixed;top:0;left:0;width:100%;z-index:5;display:flex;justify-content:space-around;padding:18px 5px;background:#0008}
-.logo{color:#c5e85a;font-weight:bold;font-size:23px}
-.tabs{display:flex;gap:15px;font-size:14px}
-.tabs b{border-bottom:2px solid white;padding-bottom:5px}
-.feed{height:100dvh;overflow-y:auto;scroll-snap-type:y mandatory}
-.post{height:100dvh;position:relative;scroll-snap-align:start;background:#181818}
-.post video{width:100%;height:100%;object-fit:cover}
-.info{position:absolute;bottom:95px;left:15px;right:85px;text-shadow:0 1px 4px black}
-.info p{font-size:14px}
-.actions{position:absolute;right:13px;bottom:115px;display:grid;gap:23px;text-align:center}
-.actions button{background:none;color:white;border:0;font-size:27px}
-.actions small{display:block;font-size:12px}
-nav{position:fixed;bottom:0;width:100%;background:#080808;display:flex;justify-content:space-around;padding:12px 3px;z-index:8}
-nav button{background:none;color:white;border:0;font-size:12px}
-nav span{display:block;font-size:23px;margin-bottom:4px}
-.upload{position:fixed;top:70px;right:12px;z-index:9;background:#c5e85a;color:black;padding:9px;border-radius:9px;font-weight:bold}
-#file{display:none}
-.empty{height:100%;display:grid;place-items:center;text-align:center;padding:30px}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TIKSOM — Muuqaallo Gaagaaban</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #000; color: #fff; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+    .app-shell { width: 100%; max-width: 450px; height: 100vh; position: relative; display: flex; flex-direction: column; background: #090b10; }
+    .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: linear-gradient(to bottom, rgba(0,0,0,0.75), transparent); }
+    .brand { font-weight: 800; font-size: 1.2rem; letter-spacing: 0.5px; color: #38bdf8; }
+    .feed { flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+    .feed::-webkit-scrollbar { display: none; }
+    .video-card { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; display: flex; align-items: flex-end; justify-content: space-between; padding: 20px 16px 84px; background: radial-gradient(circle at top, #1e293b, #090b10 70%); }
+    .video-card video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+    .placeholder-badge { position: relative; z-index: 2; max-width: 75%; }
+    .creator { font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
+    .caption { font-size: 0.92rem; line-height: 1.4; color: #e2e8f0; }
+    .actions { position: relative; z-index: 3; display: flex; flex-direction: column; gap: 18px; align-items: center; }
+    .action-btn { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 48px; height: 48px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; }
+    .action-btn.liked { background: #e11d48; border-color: #fb7185; }
+    .action-label { font-size: 0.72rem; margin-top: 2px; font-weight: 600; }
+    .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 64px; background: rgba(9, 11, 16, 0.95); border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; align-items: center; z-index: 20; }
+    .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.85rem; font-weight: 600; cursor: pointer; padding: 8px 14px; border-radius: 10px; }
+    .nav-btn.active { color: #38bdf8; }
+    .upload-btn { background: linear-gradient(135deg, #38bdf8, #2563eb); color: #fff; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; align-items: center; justify-content: center; padding: 16px; }
+    .modal.open { display: flex; }
+    .modal-box { width: 100%; max-width: 400px; background: #111827; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 20px; }
+    .modal-box h3 { margin-bottom: 12px; font-size: 1.1rem; }
+    .modal-box input, .modal-box textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: #fff; margin-bottom: 12px; }
+    .comment-list { max-height: 180px; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .comment-item { background: #1e293b; padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; }
+    .row { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn { padding: 9px 14px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
+    .btn-primary { background: #38bdf8; color: #090b10; }
+    .btn-secondary { background: #334155; color: #fff; }
+  </style>
 </head>
 <body>
-<header>
-<div class="logo">TIKSOM 🌍</div>
-<div class="tabs"><span>Following</span><b>For You</b></div>
-<div>⌕</div>
-</header>
+  <div class="app-shell">
+    <div class="top-bar">
+      <div class="brand">TIKSOM</div>
+      <div style="font-size: 0.8rem; color: #cbd5e1;">Soo Dhawoow</div>
+    </div>
 
-<label class="upload" for="file">＋ Upload</label>
-<input id="file" type="file" accept="video/*" multiple>
+    <div class="feed" id="feed"></div>
 
-<div class="feed" id="feed">
-<div class="post">
-<div class="empty">
-<div>
-<h1 style="color:#c5e85a">TIKSOM</h1>
-<h2>Ku soo dhawoow!</h2>
-<p>La wadaag muuqaaladaada dunida.</p>
-<p>Riix Upload si aad video u geliso.</p>
-</div>
-</div>
-<div class="info"><b>@TIKSOM</b><p>Bilowga bulshada muuqaalada caalamka ❤️</p></div>
-<div class="actions">
-<button onclick="like(this)">❤️<small>0</small></button>
-<button onclick="comment()">💬<small>0</small></button>
-<button onclick="share()">↗<small>Share</small></button>
-</div>
-</div>
-</div>
+    <nav class="bottom-nav">
+      <button class="nav-btn active" onclick="switchTab('feed', this)">Muuqaallo</button>
+      <button class="nav-btn upload-btn" onclick="openUploadModal()">+ Soo Geli</button>
+      <button class="nav-btn" onclick="switchTab('profile', this)">Profile</button>
+    </nav>
+  </div>
 
-<nav>
-<button><span>⌂</span>Home</button>
-<button><span>♧</span>Friends</button>
-<button onclick="document.getElementById('file').click()"><span>➕</span>Upload</button>
-<button><span>✉</span>Inbox</button>
-<button><span>♙</span>Profile</button>
-</nav>
+  <!-- Comment Modal -->
+  <div class="modal" id="commentModal">
+    <div class="modal-box">
+      <h3>Faallooyinka</h3>
+      <div class="comment-list" id="commentList"></div>
+      <input type="text" id="commentInput" placeholder="Qor faallo..." />
+      <div class="row">
+        <button class="btn btn-secondary" onclick="closeModal('commentModal')">Xir</button>
+        <button class="btn btn-primary" onclick="addComment()">Dir</button>
+      </div>
+    </div>
+  </div>
 
-<script>
-function like(btn){
-let n=Number(btn.dataset.n||0)+1;
-btn.dataset.n=n;
-btn.querySelector('small').textContent=n;
-}
-function comment(){
-let c=prompt("Qor faalladaada:");
-if(c) alert("Faalladaada: "+c);
-}
-function share(){
-if(navigator.share){
-navigator.share({title:"TIKSOM",text:"Daawo TIKSOM!"});
-}else{
-alert("La wadaag TIKSOM asxaabtaada!");
-}
-}
-document.getElementById('file').addEventListener('change',function(){
-for(const f of this.files){
-const url=URL.createObjectURL(f);
-const post=document.createElement('div');
-post.className='post';
-post.innerHTML=`
-<video controls autoplay loop playsinline></video>
-<div class="info"><b>@TIKSOM User</b><p>Video cusub 🌍</p></div>
-<div class="actions">
-<button onclick="like(this)">❤️<small>0</small></button>
-<button onclick="comment()">💬<small>0</small></button>
-<button onclick="share()">↗<small>Share</small></button>
-</div>`;
-post.querySelector('video').src=url;
-document.getElementById('feed').prepend(post);
-}
-this.value='';
-});
-</script>
+  <!-- Upload Modal -->
+  <div class="modal" id="uploadModal">
+    <div class="modal-box">
+      <h3>Soo Geli Muuqaal Cusub</h3>
+      <input type="file" id="videoFileInput" accept="video/*" />
+      <input type="text" id="creatorInput" placeholder="Magacaaga (tusaale: @abdalla)" />
+      <textarea id="captionInput" rows="2" placeholder="Qoraal kooban oo ku saabsan muuqaalka..."></textarea>
+      <div class="row">
+        <button class="btn btn-secondary" onclick="closeModal('uploadModal')">Jooji</button>
+        <button class="btn btn-primary" onclick="publishVideo()">Daabac</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let videos = [
+      {
+        id: 1,
+        creator: "@tiksom_rasmi",
+        caption: "Ku soo dhawaada TIKSOM — Madasha muuqaallada gaagaaban! #TIKSOM #Somalia",
+        likes: 24,
+        liked: false,
+        comments: ["Mashruuc cajiib ah!", "Waannu sugaynay app-kan."],
+        src: null
+      },
+      {
+        id: 2,
+        creator: "@abdalla_dev",
+        caption: "Waxaan ka dhisaynaa GitHub annagoo adeegsanayna talefanka! #Coding",
+        likes: 15,
+        liked: false,
+        comments: ["Guul ayaan idiin rajaynayaa."],
+        src: null
+      }
+    ];
+
+    let activeVideoId = null;
+
+    function renderFeed() {
+      const feed = document.getElementById("feed");
+      feed.innerHTML = "";
+
+      videos.forEach((vid) => {
+        const card = document.createElement("div");
+        card.className = "video-card";
+
+        if (vid.src) {
+          card.innerHTML += `<video src="${vid.src}" controls autoplay loop playsinline></video>`;
+        }
+
+        card.innerHTML += `
+          <div class="placeholder-badge">
+            <div class="creator">${vid.creator}</div>
+            <div class="caption">${vid.caption}</div>
+          </div>
+          <div class="actions">
+            <button class="action-btn ${vid.liked ? "liked" : ""}" onclick="toggleLike(${vid.id})">
+              ♥
+              <span class="action-label">${vid.likes}</span>
+            </button>
+            <button class="action-btn" onclick="openComments(${vid.id})">
+              💬
+              <span class="action-label">${vid.comments.length}</span>
+            </button>
+            <button class="action-btn" onclick="shareVideo('${vid.creator}')">
+              ↗
+              <span class="action-label">Share</span>
+            </button>
+          </div>
+        `;
+        feed.appendChild(card);
+      });
+    }
+
+    function toggleLike(id) {
+      const vid = videos.find((v) => v.id === id);
+      if (!vid) return;
+      vid.liked = !vid.liked;
+      vid.likes += vid.liked ? 1 : -1;
+      renderFeed();
+    }
+
+    function openComments(id) {
+      activeVideoId = id;
+      const vid = videos.find((v) => v.id === id);
+      const list = document.getElementById("commentList");
+      list.innerHTML = vid.comments.length
+        ? vid.comments.map((c) => `<div class="comment-item">${c}</div>`).join("")
+        : `<div class="comment-item">Weli faallo ma jirto. Noqo qofka ugu horreeya!</div>`;
+      document.getElementById("commentModal").classList.add("open");
+    }
+
+    function addComment() {
+      const input = document.getElementById("commentInput");
+      const text = input.value.trim();
+      if (!text || activeVideoId === null) return;
+      const vid = videos.find((v) => v.id === activeVideoId);
+      vid.comments.push(text);
+      input.value = "";
+      openComments(activeVideoId);
+      renderFeed();
+    }
+
+    function shareVideo(creator) {
+      alert("Link-ga muuqaalka ee " + creator + " waa la diyaariyay!");
+    }
+
+    function openUploadModal() {
+      document.getElementById("uploadModal").classList.add("open");
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("open");
+    }
+
+    function publishVideo() {
+      const fileInput = document.getElementById("videoFileInput");
+      const creator = document.getElementById("creatorInput").value.trim() || "@isticmaale_cusub";
+      const caption = document.getElementById("captionInput").value.trim() || "Muuqaal cusub oo TIKSOM ah";
+
+      let videoUrl = null;
+      if (fileInput.files && fileInput.files[0]) {
+        videoUrl = URL.createObjectURL(fileInput.files[0]);
+      }
+
+      videos.unshift({
+        id: Date.now(),
+        creator,
+        caption,
+        likes: 0,
+        liked: false,
+        comments: [],
+        src: videoUrl
+      });
+
+      document.getElementById("creatorInput").value = "";
+      document.getElementById("captionInput").value = "";
+      fileInput.value = "";
+      closeModal("uploadModal");
+      renderFeed();
+    }
+
+    function switchTab(tab, el) {
+      document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
+      if (el) el.classList.add("active");
+      if (tab === "profile") {
+        alert("Profile-ka TIKSOM: @abdallapoi078-cpu — Wadarta muuqaallada: " + videos.length);
+      }
+    }
+
+    renderFeed();
+  </script>
 </body>
 </html>
 
